@@ -8,20 +8,21 @@
 #
 ############################################################
 
+### SEE DOCS IN Common.pm
+
 package OpenGL::Shader::Objects;
 
 require Exporter;
 
 use Carp;
 
-use vars qw($VERSION $DESCRIPTION @ISA);
-$VERSION = '1.00';
+use vars qw($VERSION @ISA);
+$VERSION = '1.01';
 
 use OpenGL::Shader::Common;
 @ISA = qw(Exporter OpenGL::Shader::Common);
 
 use OpenGL(':all');
-
 
 
 =head1 NAME
@@ -35,73 +36,14 @@ use OpenGL(':all');
 
 =head1 DESCRIPTION
 
-  This is a base class for plug-in modules based on GL_ARB_shader_objects.
-  This is a subclass of the OpenGL::Shader::Common module.
+  This module provides a base class for high-level OpenGL shaders.
+
+  This subclasses of the OpenGL::Shader::Common module.
 
 
 =head1 SYNOPSIS
 
-  ##########
-  # Instantiate a shader
-
-  use OpenGL::Shader;
-  my $shdr = new OpenGL::Shader('CG');
-
-
-  ##########
-  # Methods defined in OpenGL::Shader::Common:
-
-  # Get shader type.
-  my $ver = $shdr->GetType();
-
-  # Load shader files.
-  my $stat = $shdr->LoadFiles($fragment_file,$vertex_file);
-
-  # Get shader GL constants.
-  my $fragment_const = $shdr->GetFragmentConstant();
-  my $vertex_const = $shdr->GetVertexConstant();
-
-  # Get objects.
-  my $fragment_shader = $shdr->GetFragmentShader();
-  my $vertex_shader = $shdr->GetVertexShader();
-  my $program = $shdr->GetProgram();
-
-
-  ##########
-  # Methods defined in this module:
-
-  # Load shader text.
-  $shdr->Load($fragment,$vertex);
-
-  # Enable shader.
-  $shdr->Enable();
-
-  # Set Vertex Attribute
-  my $attr_id = $self->MapAttr($attr_name);
-  glVertexAttrib4fARB($attr_id,$x,$y,$z,$w);
-
-  # Get Global Variable ID (uniform/env)
-  my $var_id = $self->Map($var_name);
-
-  # Set float4 vector variable
-  $stat = $self->SetVector($var_name,$x,$y,$z,$w);
-
-  # Set float4x4 matrix via OGA
-  $stat = $self->SetMatrix($var_name,$oga);
-
-  # Disable shader.
-  $shdr->Disable();
-
-  # Destructor.
-  $shdr->DESTROY();
-
-
-  ##########
-  # Methods defined in sub-class:
-
-  # Get shader version.
-  my $ver = $shdr->GetVersion();
-
+  # See docs in OpenGL/Shader/Common.pm
 
 =cut
 
@@ -123,6 +65,7 @@ sub new
 
   $self->{type} = '';
   $self->{version} = '';
+  $self->{description} = '';
 
   $self->{fragment_const} = '';
   $self->{vertex_const} = '';
@@ -252,9 +195,8 @@ sub SetVector
   return 'Unable to map $var' if (!defined($id));
 
   my $count = scalar(@values);
-  return 'Invalid number of values' if ($count != 4);
+  eval('glUniform'.$count.'fARB($id,@values)');
 
-  glUniform4fARB($id,@values);
   return '';
 }
 

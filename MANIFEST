@@ -12,6 +12,7 @@ Makefile.PL
 MANIFEST
 README
 t/OpenGL-Shader.t
+shader-test.pl
 fragment.arb
 vertex.arb
 fragment.glsl

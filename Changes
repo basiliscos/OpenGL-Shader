@@ -1,44 +1,24 @@
-Change List for 1.00 - Bob "grafman" Free <bfree@graphcomp.com>
+Change List for 1.01 - Bob "grafman" Free <bfree@graphcomp.com>
 ____________________________________________________________
 
-New Changes
+Updated Changes
 
-New Copyright
+Updated MANIFEST
 
-New INSTALL
+Updated README
 
-New Makefile.PL
+Updated Shader.pm
 
-New MANIFEST
+Updated Shader/Common.pm
 
-New README
+Updated Shader/Objects.pm
 
-New Shader.pm
+Updated Shader/ARB.pm
 
-New Shader.pod
+Updated Shader/CG.pm
 
-New Shader/Common.pm
+Updated Shader/GLSL.pm
 
-New Shader/Objects.pm
+Updated t/OpenGL-Shader.t
 
-New Shader/ARB.pm
-
-New Shader/GLSL.pm
-
-New Shader/CG.pm
-
-New t/OpenGL-Shader.t
-
-New fragment.arb
-
-New vertex.arb
-
-New fragment.glsl
-
-New vertex.glsl
-
-New fragment.cg
-
-New vertex.cg
-
-
+Added shader-test.pl

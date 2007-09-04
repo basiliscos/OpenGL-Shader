@@ -16,4 +16,14 @@ http://graphcomp.com/opengl
 
 Changes:
 
-1.0	First release - Bob "grafman" Free <grafman@graphcomp.com>
+1.01	Bob "grafman" Free <grafman@graphcomp.com>
+	Removed duplicate documentation in Shader.pm
+	Added support for parameters fewer than 4 in SetVector
+	Updated GetTypes and HasType to reflect changes in OpenGL::Image
+	Updated OpenGL-Shader.t to reflect changes
+	Fixed tests for shader support
+
+	Geoff Broadwell
+	Added shader-test.pl - sample shader app
+
+1.00	First release - Bob "grafman" Free <grafman@graphcomp.com>

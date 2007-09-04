@@ -14,8 +14,8 @@ require Exporter;
 
 use Carp;
 
-use vars qw($VERSION $DESCRIPTION @ISA);
-$VERSION = '1.00';
+use vars qw($VERSION $SHADER_VER $DESCRIPTION @ISA);
+$VERSION = '1.01';
 
 $DESCRIPTION = qq
 {nVidia's Cg Shader Language};
@@ -53,63 +53,34 @@ use OpenGL(':all');
   use OpenGL::Shader;
   my $shdr = new OpenGL::Shader('CG');
 
-
-  ##########
-  # Methods defined in OpenGL::Shader::Common:
-
-  # Get shader type.
-  my $ver = $shdr->GetType();
-
-  # Load shader files.
-  my $stat = $shdr->LoadFiles($fragment_file,$vertex_file);
-
-  # Get shader GL constants.
-  my $fragment_const = $shdr->GetFragmentConstant();
-  my $vertex_const = $shdr->GetVertexConstant();
-
-  # Get objects.
-  my $fragment_shader = $shdr->GetFragmentShader();
-  my $vertex_shader = $shdr->GetVertexShader();
-  my $program = $shdr->GetProgram();
-
-
-  ##########
-  # Methods defined in OpenGL::Shader::Objects:
-
-  # Load shader text.
-  $shdr->Load($fragment,$vertex);
-
-  # Enable shader.
-  $shdr->Enable();
-
-  # Set Vertex Attribute
-  my $attr_id = $self->MapAttr($attr_name);
-  glVertexAttrib4fARB($attr_id,$x,$y,$z,$w);
-
-  # Get Global Variable ID (uniform/env)
-  my $var_id = $self->Map($var_name);
-
-  # Set float4 vector variable
-  $stat = $self->SetVector($var_name,$x,$y,$z,$w);
-
-  # Set float4x4 matrix via OGA
-  $stat = $self->SetMatrix($var_name,$oga);
-
-  # Disable shader.
-  $shdr->Disable();
-
-  # Destructor.
-  $shdr->DESTROY();
-
-
-  ##########
-  # Methods defined in this module:
-
-  # Get shader version.
-  my $ver = $shdr->GetVersion();
-
+  # See docs in OpenGL/Shader/Common.pm
 
 =cut
+
+
+# Get Version
+sub TypeVersion
+{
+  if (!defined($SHADER_VER))
+  {
+    return undef if (OpenGL::glpCheckExtension('GL_EXT_Cg_shader'));
+
+    # Get GL_SHADING_LANGUAGE_VERSION_ARB
+    my $ver = glGetString(0x8B8C);
+    $ver =~ m|Cg ([\d\.]+)|i;
+
+    # Some drivers do not report Cg version
+    $SHADER_VER = $1 || '1.00';
+  }
+  return $SHADER_VER;
+}
+
+
+# Get Description
+sub TypeDescription
+{
+  return $DESCRIPTION;
+}
 
 
 # Shader constructor
@@ -118,37 +89,22 @@ sub new
   my $this = shift;
   my $class = ref($this) || $this;
 
+  # Check for additional required OpenGL extensions
+  my $ver = TypeVersion();
+  return undef if (!$ver);
+
   my $self = new OpenGL::Shader::Objects(@_);
   return undef if (!$self);
   bless($self,$class);
 
-  # Check for additional required OpenGL extensions
-  return undef if (OpenGL::glpCheckExtension('GL_EXT_Cg_shader'));
-
   $self->{type} = 'CG';
+  $self->{version} = $ver;
+  $self->{description} = $DESCRIPTION;
 
   $self->{fragment_const} = GL_CG_FRAGMENT_SHADER_EXT;
   $self->{vertex_const} = GL_CG_VERTEX_SHADER_EXT;
 
   return $self;
-}
-
-
-# GetVersion
-sub GetVersion
-{
-  my($self,$shader_ver) = @_;
-
-  if (!$self->{version})
-  {
-    # Get GL_SHADING_LANGUAGE_VERSION_ARB
-    $shader_ver = glGetString(0x8B8C) if (!$shader_ver);
-
-    return '1.00' if ($shader_ver !~ m|Cg ([\d\.]+)|i);
-    $self->{version} = $1;
-  }
-
-  return $self->{version};
 }
 
 

@@ -65,13 +65,14 @@ foreach my $type (sort keys(%$types))
   }
   else
   {
-    $t->status('  Unknown shader type - '.$type.': '.$types->{$type});
+    $t->status('  Unknown shader type - '.$type.': '.$types->{$type}->{version});
     delete($types->{$type});
     $unk++;
     next;
   }
 
-  $t->status('  '.$type.': '.$types->{$type});
+  $t->status('  '.$type.' v'.$types->{$type}->{version}.' - '.
+    $types->{$type}->{description});
   $good++;
 }
 $t->bail("No known shader types available") if (!$good);
@@ -111,9 +112,9 @@ sub test_shader
   my $lctype = lc($test);
   my $uctype = uc($test);
 
-  my $ver = OpenGL::Shader::HasType($test);
+  my $info = OpenGL::Shader::HasType($test);
 
-  if (!$ver)
+  if (!$info)
   {
     $t->skip("$uctype shader test");
     return;
@@ -122,8 +123,9 @@ sub test_shader
   my $shdr = new OpenGL::Shader($test);
   $t->bail("Unable to instantiate $uctype shader") if (!$shdr);
 
-  my $get_ver = $shdr->GetVersion();
-  $t->status("Instantiated $uctype v$get_ver");
+  my $ver = $info->{version};
+  my $desc = $info->{description};
+  $t->status("Instantiated $uctype v$ver");
 
   my $stat = $shdr->LoadFiles("fragment.$lctype","vertex.$lctype");
   if ($stat)

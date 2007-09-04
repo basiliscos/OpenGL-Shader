@@ -15,7 +15,7 @@ require Exporter;
 use Carp;
 
 use vars qw($VERSION @ISA);
-$VERSION = '1.00';
+$VERSION = '1.01';
 
 @ISA = qw(Exporter);
 
@@ -41,14 +41,20 @@ $VERSION = '1.00';
   # Instantiate a shader
 
   use OpenGL::Shader;
-  my $shdr = new OpenGL::Shader('GLSL');
+  my $shdr = new OpenGL::Shader();
 
 
   ##########
   # Methods defined in this module:
 
   # Get shader type.
-  my $ver = $shdr->GetType();
+  my $type = $shdr->GetType();
+
+  # Get shader version
+  my $ver = $shdr->GetVersion();
+
+  # Get shader description
+  my $desc = $shdr->GetDescription();
 
   # Load shader files.
   my $stat = $shdr->LoadFiles($fragment_file,$vertex_file);
@@ -65,9 +71,6 @@ $VERSION = '1.00';
 
   ##########
   # Methods defined in subclasses:
-
-  # Get shader version.
-  my $ver = $shdr->GetVersion();
 
   # Load shader text.
   $shdr->Load($fragment,$vertex);
@@ -115,6 +118,22 @@ sub GetType
 {
   my($self) = @_;
   return $self->{type};
+}
+
+
+# Get shader version
+sub GetVersion
+{
+  my($self) = @_;
+  return $self->{version};
+}
+
+
+# Get shader description
+sub GetDescription
+{
+  my($self) = @_;
+  return $self->{description};
 }
 
 

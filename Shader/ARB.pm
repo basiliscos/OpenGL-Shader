@@ -14,11 +14,13 @@ require Exporter;
 
 use Carp;
 
-use vars qw($VERSION $DESCRIPTION @ISA);
-$VERSION = '1.00';
+use vars qw($VERSION $SHADER_VER $DESCRIPTION @ISA);
+$VERSION = '1.01';
+
+$SHADER_VER = '1.0';
 
 $DESCRIPTION = qq
-{Supports ARBfp1.0 and ARBvp1.0};
+{ARBfp1.0 and ARBvp1.0 Assembly};
 
 use OpenGL::Shader::Common;
 @ISA = qw(Exporter OpenGL::Shader::Common);
@@ -53,59 +55,27 @@ use OpenGL(':all');
   use OpenGL::Shader;
   my $shdr = new OpenGL::Shader('ARB');
 
-
-  ##########
-  # Methods defined in OpenGL::Shader::Common:
-
-  # Get shader type.
-  my $ver = $shdr->GetType();
-
-  # Load shader files.
-  my $stat = $shdr->LoadFiles($fragment_file,$vertex_file);
-
-  # Get shader GL constants.
-  my $fragment_const = $shdr->GetFragmentConstant();
-  my $vertex_const = $shdr->GetVertexConstant();
-
-  # Get objects.
-  my $fragment_shader = $shdr->GetFragmentShader();
-  my $vertex_shader = $shdr->GetVertexShader();
-  my $program = $shdr->GetProgram();
-
-
-  ##########
-  # Methods defined in this module:
-
-  # Get shader version.
-  my $ver = $shdr->GetVersion();
-
-  # Load shader text.
-  $shdr->Load($fragment,$vertex);
-
-  # Enable shader.
-  $shdr->Enable();
-
-  # Set Vertex Attribute
-  my $attr_id = $self->MapAttr($attr_name);
-  glVertexAttrib4fARB($attr_id,$x,$y,$z,$w);
-
-  # Get Global Variable ID (uniform/env)
-  my $var_id = $self->Map($var_name);
-
-  # Set float4 vector variable
-  $stat = $self->SetVector($var_name,$x,$y,$z,$w);
-
-  # Set float4x4 matrix via OGA
-  $stat = $self->SetMatrix($var_name,$oga);
-
-  # Disable shader.
-  $shdr->Disable();
-
-  # Destructor.
-  $shdr->DESTROY();
-
+  # See docs in OpenGL/Shader/Common.pm
 
 =cut
+
+
+# Get Version
+sub TypeVersion
+{
+  return undef if (OpenGL::glpCheckExtension('GL_ARB_fragment_program'));
+  return undef if (OpenGL::glpCheckExtension('GL_ARB_vertex_program'));
+
+  # ARBfp1.0 and ARBvp1.0
+  return $SHADER_VER;
+}
+
+
+# Get Description
+sub TypeDescription
+{
+  return $DESCRIPTION;
+}
 
 
 # Shader constructor
@@ -114,16 +84,17 @@ sub new
   my $this = shift;
   my $class = ref($this) || $this;
 
+  # Check for required OpenGL extensions
+  my $ver = TypeVersion();
+  return undef if (!$ver);
+
   my $self = new OpenGL::Shader::Common(@_);
   return undef if (!$self);
   bless($self,$class);
 
-  # Check for required OpenGL extensions
-  return undef if (OpenGL::glpCheckExtension('GL_ARB_fragment_program'));
-  return undef if (OpenGL::glpCheckExtension('GL_ARB_vertex_program'));
-
   $self->{type} = 'ARB';
-  $self->{version} = '1.00';
+  $self->{version} = $ver;
+  $self->{description} = TypeDescription();
 
   $self->{fragment_const} = GL_FRAGMENT_PROGRAM_ARB;
   $self->{vertex_const} = GL_VERTEX_PROGRAM_ARB;
@@ -142,16 +113,6 @@ sub DESTROY
   my($self) = @_;
   glDeleteProgramsARB_p($self->{fragment_id}) if ($self->{fragment_id});
   glDeleteProgramsARB_p($self->{vertex_id}) if ($self->{vertex_id});
-}
-
-
-# GetVersion
-sub GetVersion
-{
-  my($self,$shader_ver) = @_;
-
-  # ARBfp1.0 and ARBvp1.0
-  return $self->{version};
 }
 
 
@@ -240,7 +201,7 @@ sub SetVector
   my($self,$var,@values) = @_;
 
   my $count = scalar(@values);
-  return 'Invalid number of values' if ($count != 4);
+  push(@values,(0) x (4-$count)) if ($count < 4);
 
   my $id = $self->Map($var,2);
   if (defined($id))
