@@ -88,7 +88,7 @@ sub new
   my $ver = TypeVersion();
   return undef if (!$ver);
 
-  my $self = new OpenGL::Shader::Common(@_);
+  my $self = new OpenGL::Shader::Common('ARB');
   return undef if (!$self);
   bless($self,$class);
 
